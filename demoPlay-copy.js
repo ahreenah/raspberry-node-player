@@ -76,6 +76,19 @@ softPoll2(15, {
   },
 })
 
+softPoll2(13, {
+  long:()=>{
+    console.log('long prev')
+  },
+  short:()=>{
+    state?.player?.stop();
+    if(state.index>0)
+      playFile(state.files,state.index-1)
+    else
+      playFile(state.files, state.files.length-1)
+    console.log('short prev')
+  }
+})
 
 const musicFolder = '../Downloads'
 rpio.open(5, rpio.INPUT)
