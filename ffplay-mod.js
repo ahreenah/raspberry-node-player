@@ -21,12 +21,13 @@ function FFplay(file, events, opts) {
 	process.on('exit', this.ef);
 
 	this.proc.on('exit', () => {
-		events && events.onTrackEnd && events.onTrackEnd();
-		console.log('track ended')
+		console.log('track ended inside')
 		if (this.running) {
 			this.running = false;
 			process.removeListener('exit', this.ef);
 			if (!this.manualStop) {
+                         	events && events.onTrackEnd && events.onTrackEnd();
+
 				setImmediate(() => {
 					this.emit('stopped');
 				});

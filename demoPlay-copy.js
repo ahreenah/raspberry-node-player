@@ -35,16 +35,45 @@ let softPoll = (pi, cbs)=>{
   }
   check();
 }
-softPoll(15, {
-  short:()=>{
+
+let softPoll2 = (pi, cbs)=>{
+  let state = rpio.read(pi);
+  let count = 0;
+  setInterval(()=>{
+    //console.log('in:',rpio.read(pi));
+    if(rpio.read(pi) == 1){
+      count ++;
+      //console.log('inc',count)
+    } else {
+      if(count)
+      // console.log('ended', count);
+      if(count >= 80) {
+        //console.log('long');
+        cbs?.long?.();
+      } else if (count >= 6) {
+        // console.log('short')
+	cbs?.short?.();
+      }
+      count = 0;
+    }
+  },10)
+}
+
+softPoll2(15, {
+  long:()=>{
     state?.player?.stop(); 
-    console.log('short')
+    console.log('long')
   },
+
   down:()=>{
     console.log('down')
   }, 
   up:()=>console.log('up'),
-  long:()=>console.log('long'),
+  short:()=>{
+    console.log('short');
+    state?.player?.stop();
+    playFile(state.files, state.index+1)
+  },
 })
 
 
@@ -97,7 +126,10 @@ const playFile = async (files, index)=>{
     display();
   });
 
-  var player = new FFplay(files[index],{onTrackEnd:()=>playFile(files, index+1)})
+  var player = new FFplay(files[index],{onTrackEnd:()=>{
+	  console.log('track ended');
+	  playFile(files, index+1)}
+  })
   state.player = player;
   state.files = files;
   state.index = index;
